@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "100184805668",
+    "firebase_url": "https://waterbot-33d6f-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "waterbot-33d6f",
+    "storage_bucket": "waterbot-33d6f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100184805668:android:5e1fb93fbe4bbf50f5e3b1",
+        "android_client_info": {
+          "package_name": "com.example.aquarover"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100184805668-079t1het528bv8d0c1e1rs9bs35ad65q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGkntSHjhCgzMpwri3sN75mzXeXU8WnJ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100184805668-079t1het528bv8d0c1e1rs9bs35ad65q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
