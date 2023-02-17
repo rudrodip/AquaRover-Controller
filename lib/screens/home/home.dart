@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:control_pad/control_pad.dart';
+import 'bottom_sheet.dart';
 
 JoystickDirectionCallback onDirectionChanged() {
   return (double degrees, double distance) {
@@ -9,8 +10,15 @@ JoystickDirectionCallback onDirectionChanged() {
   };
 }
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  double _currentSliderValue = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +28,30 @@ class Home extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              ElevatedButton(onPressed: () {}, child: const Text('Connect')),
+              ElevatedButton(
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return const BottomSheetModal();
+                      },
+                    );
+                  },
+                  child: const Text('Connect')),
               JoystickView(
                 onDirectionChanged: onDirectionChanged(),
-              )
+              ),
+              Slider(
+                value: _currentSliderValue,
+                max: 100,
+                divisions: 10,
+                label: _currentSliderValue.round().toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    _currentSliderValue = value;
+                  });
+                },
+              ),
             ],
           ),
         ));
