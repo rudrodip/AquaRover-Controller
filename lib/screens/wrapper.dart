@@ -1,8 +1,11 @@
+import 'package:aquarover/screens/authenticate/signin.dart';
 import 'package:aquarover/screens/home/home.dart';
 import 'package:aquarover/screens/data/data.dart';
 import 'package:aquarover/screens/profile/profile.dart';
 import 'package:aquarover/screens/settings/settings.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Wrapper extends StatefulWidget {
   const Wrapper({super.key});
@@ -22,23 +25,29 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: pages[currentPage],
-      bottomNavigationBar: NavigationBar(
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-          NavigationDestination(
-              icon: Icon(Icons.data_exploration), label: 'Data'),
-          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPage = index;
-          });
-        },
-        selectedIndex: currentPage,
-      ),
-    );
+    final user = Provider.of<User?>(context);
+
+    return user != null
+        ? Scaffold(
+            body: pages[currentPage],
+            bottomNavigationBar: NavigationBar(
+              destinations: const [
+                NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+                NavigationDestination(
+                    icon: Icon(Icons.data_exploration), label: 'Data'),
+                NavigationDestination(
+                    icon: Icon(Icons.person), label: 'Profile'),
+                NavigationDestination(
+                    icon: Icon(Icons.settings), label: 'Settings'),
+              ],
+              onDestinationSelected: (int index) {
+                setState(() {
+                  currentPage = index;
+                });
+              },
+              selectedIndex: currentPage,
+            ),
+          )
+        : const SignIn();
   }
 }

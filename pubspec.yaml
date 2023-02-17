@@ -40,6 +40,8 @@ dependencies:
   firebase_core: ^2.5.0
   firebase_auth: ^4.2.6
   provider: ^6.0.5
+  flutter_blue: ^0.8.0
+  syncfusion_flutter_charts: ^20.4.50
 
 dev_dependencies:
   flutter_test:

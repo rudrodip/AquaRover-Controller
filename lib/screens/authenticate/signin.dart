@@ -45,7 +45,7 @@ class _SignInState extends State<SignIn> {
   }
 
   Widget _title() {
-    return const Text('Firebase Auth');
+    return const Text('AquaRover login');
   }
 
   Widget _entryFieldText(
@@ -104,9 +104,9 @@ class _SignInState extends State<SignIn> {
       appBar: AppBar(
         title: _title(),
       ),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
+      body: Padding(
+        // height: double.infinity,
+        // width: double.infinity,
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

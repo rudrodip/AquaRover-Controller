@@ -31,9 +31,4 @@ class DatabaseService {
       return null;
     }
   }
-
-  // get user
-  // Stream<QuerySnapshot<Object?>> getUserInfo() {
-  //   return userCollection.snapshots();
-  // }
 }
