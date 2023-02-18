@@ -3,8 +3,8 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:aquarover/services/ble/ble_scanner.dart';
 import 'package:provider/provider.dart';
 
-import '../ble/ble_logger.dart';
-import '../widgets.dart';
+import 'package:aquarover/services/ble/ble_logger.dart';
+import 'package:aquarover/services/widgets.dart';
 import 'device_detail/device_detail_screen.dart';
 
 class DeviceListScreen extends StatelessWidget {

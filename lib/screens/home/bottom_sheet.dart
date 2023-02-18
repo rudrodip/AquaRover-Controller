@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:provider/provider.dart';
-import 'package:aquarover/services/ui/ble_status_screen.dart';
-import 'package:aquarover/services/ui/device_list.dart';
+import 'package:aquarover/ui/ble_status_screen.dart';
+import 'package:aquarover/ui/device_list.dart';
 
 class BottomSheetModal extends StatefulWidget {
   const BottomSheetModal({super.key});
