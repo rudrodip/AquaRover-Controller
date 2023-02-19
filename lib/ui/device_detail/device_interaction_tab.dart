@@ -196,14 +196,20 @@ class _ServiceDiscoveryListState extends State<_ServiceDiscoveryList> {
   Widget _characteristicTile(
           DiscoveredCharacteristic characteristic, String deviceId) =>
       ListTile(
-        onTap: () => showDialog<void>(
-            context: context,
-            builder: (context) => CharacteristicInteractionDialog(
-                  characteristic: QualifiedCharacteristic(
-                      characteristicId: characteristic.characteristicId,
-                      serviceId: characteristic.serviceId,
-                      deviceId: deviceId),
-                )),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CharacteristicInteractionDialog(
+                characteristic: QualifiedCharacteristic(
+                  characteristicId: characteristic.characteristicId,
+                  serviceId: characteristic.serviceId,
+                  deviceId: deviceId,
+                ),
+              ),
+            ),
+          );
+        },
         title: Text(
           '${characteristic.characteristicId}\n(${_charactisticsSummary(characteristic)})',
           style: const TextStyle(

@@ -22,6 +22,7 @@ class _DataState extends State<Data> {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Data Visualization'),
+          automaticallyImplyLeading: false,
         ),
         body: Column(children: [
           //Initialize the chart widget

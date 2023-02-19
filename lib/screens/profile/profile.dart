@@ -70,7 +70,10 @@ class _ProfileState extends State<Profile> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(
+        title: const Text('Profile'),
+        automaticallyImplyLeading: false,
+      ),
       body: isLoading
           ? const LoadingScreen()
           : userInfo != null

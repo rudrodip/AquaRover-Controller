@@ -1,6 +1,5 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
-import 'package:aquarover/screens/wrapper.dart';
 import 'package:aquarover/services/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,6 +11,7 @@ import 'package:aquarover/services/ble/ble_device_interactor.dart';
 import 'package:aquarover/services/ble/ble_scanner.dart';
 import 'package:aquarover/services/ble/ble_status_monitor.dart';
 import 'services/ble/ble_logger.dart';
+import 'package:aquarover/screens/home/home.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,7 +74,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(primarySwatch: Colors.cyan),
-        home: const Wrapper(),
+        home: const Home(),
       ),
     );
   }

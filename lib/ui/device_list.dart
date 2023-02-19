@@ -85,7 +85,7 @@ class _DeviceListState extends State<_DeviceList> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: const Text('Scan for devices'),
+          title: const Text('AquaRover'),
         ),
         body: Column(
           children: [
@@ -94,19 +94,7 @@ class _DeviceListState extends State<_DeviceList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16),
-                  const Text('Service UUID (2, 4, 16 bytes):'),
-                  TextField(
-                    controller: _uuidController,
-                    enabled: !widget.scannerState.scanIsInProgress,
-                    decoration: InputDecoration(
-                        errorText:
-                            _uuidController.text.isEmpty || _isValidUuidInput()
-                                ? null
-                                : 'Invalid UUID format'),
-                    autocorrect: false,
-                  ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 32),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -140,7 +128,7 @@ class _DeviceListState extends State<_DeviceList> {
                   ListTile(
                     title: Text(
                       !widget.scannerState.scanIsInProgress
-                          ? 'Enter a UUID above and tap start to begin scanning'
+                          ? 'Tap scan to begin scanning'
                           : 'Tap a device to connect to it',
                     ),
                     trailing: (widget.scannerState.scanIsInProgress ||

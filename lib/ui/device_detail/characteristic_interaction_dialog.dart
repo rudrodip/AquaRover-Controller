@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:aquarover/services/ble/ble_device_interactor.dart';
 import 'package:provider/provider.dart';
+import 'package:aquarover/screens/wrapper.dart';
+
+import 'package:aquarover/widgets/controller.dart';
 
 class CharacteristicInteractionDialog extends StatelessWidget {
   const CharacteristicInteractionDialog({
@@ -190,40 +193,13 @@ class _CharacteristicInteractionDialogState
       );
 
   @override
-  Widget build(BuildContext context) => Dialog(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              const Text(
-                'Select an operation',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  widget.characteristic.characteristicId.toString(),
-                ),
-              ),
-              divider,
-              ...readSection,
-              divider,
-              ...writeSection,
-              divider,
-              ...subscribeSection,
-              divider,
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('close')),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
+  Widget build(BuildContext context) => Consumer<BleDeviceInteractor>(
+      builder: (context, interactor, _) => Wrapper(
+            characteristic: widget.characteristic,
+            readCharacteristic: interactor.readCharacteristic,
+            writeWithResponse: interactor.writeCharacterisiticWithResponse,
+            writeWithoutResponse:
+                interactor.writeCharacterisiticWithoutResponse,
+            subscribeToCharacteristic: interactor.subScribeToCharacteristic,
+          ));
 }
