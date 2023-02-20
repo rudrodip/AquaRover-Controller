@@ -69,43 +69,48 @@ class _ProfileState extends State<Profile> {
           child: const Text('Logout'));
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        automaticallyImplyLeading: false,
-      ),
-      body: isLoading
-          ? const LoadingScreen()
-          : userInfo != null
-              ? Column(
-                  children: [
-                    // Show user info
-                    Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(userInfo!['photoURL']),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      userInfo!['name'],
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Sample Collected: ${userInfo!['sampleCollected']}'),
-                    Text('Sample Collected: ${userInfo!['location']}'),
-                    logoutButton()
-                  ],
-                )
-              : loginButton(),
-    );
+    final user = Provider.of<User?>(context);
+
+    return user != null
+        ? Scaffold(
+            appBar: AppBar(
+              title: const Text('Profile'),
+              automaticallyImplyLeading: false,
+            ),
+            body: isLoading
+                ? const LoadingScreen()
+                : userInfo != null
+                    ? Column(
+                        children: [
+                          // Show user info
+                          Container(
+                            width: double.infinity,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(userInfo!['photoURL']),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            userInfo!['name'],
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                              'Sample Collected: ${userInfo!['sampleCollected']}'),
+                          Text('Sample Collected: ${userInfo!['location']}'),
+                          logoutButton()
+                        ],
+                      )
+                    : loginButton(),
+          )
+        : const SignIn();
   }
 }

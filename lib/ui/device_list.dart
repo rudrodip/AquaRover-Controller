@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:aquarover/services/ble/ble_logger.dart';
 import 'package:aquarover/services/widgets.dart';
 import 'device_detail/device_detail_screen.dart';
+import 'package:aquarover/screens/data/data.dart';
+import 'package:aquarover/screens/profile/profile.dart';
 
 class DeviceListScreen extends StatelessWidget {
   const DeviceListScreen({Key? key}) : super(key: key);
@@ -86,6 +88,58 @@ class _DeviceListState extends State<_DeviceList> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
           title: const Text('AquaRover'),
+        ),
+        drawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: <Widget>[
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Colors.cyan,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'AquaRover',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      'Exploring the depths, securing the future',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.home),
+                title: const Text('Home'),
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('Profile'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Profile()),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
         body: Column(
           children: [

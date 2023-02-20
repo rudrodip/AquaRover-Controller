@@ -6,8 +6,6 @@ import 'package:aquarover/services/ble/ble_device_interactor.dart';
 import 'package:provider/provider.dart';
 import 'package:aquarover/screens/wrapper.dart';
 
-import 'package:aquarover/widgets/controller.dart';
-
 class CharacteristicInteractionDialog extends StatelessWidget {
   const CharacteristicInteractionDialog({
     required this.characteristic,

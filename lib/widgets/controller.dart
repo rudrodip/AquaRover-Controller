@@ -109,11 +109,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 });
               },
             ),
-            ElevatedButton(
-              onPressed: readCharacteristic,
-              child: const Text("read"),
-            ),
-            Text(readOutput)
           ],
         ),
       ));

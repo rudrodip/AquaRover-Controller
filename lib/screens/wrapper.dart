@@ -70,7 +70,10 @@ class _WrapperState extends State<Wrapper> {
         writeWithoutResponse: writeWithoutResponse,
         subscribeToCharacteristic: subscribeToCharacteristic,
       ),
-      const Data(),
+      Data(
+        characteristic: characteristic,
+        readCharacteristic: readCharacteristic,
+      ),
       const Profile(),
       const Settings(),
     ];
@@ -79,30 +82,23 @@ class _WrapperState extends State<Wrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User?>(context);
-
-    return user != null
-        ? Scaffold(
-            body: pages[currentPage],
-            bottomNavigationBar: NavigationBar(
-              destinations: const [
-                NavigationDestination(
-                    icon: Icon(Icons.gamepad), label: 'Controller'),
-                NavigationDestination(
-                    icon: Icon(Icons.data_exploration), label: 'Data'),
-                NavigationDestination(
-                    icon: Icon(Icons.person), label: 'Profile'),
-                NavigationDestination(
-                    icon: Icon(Icons.settings), label: 'Settings'),
-              ],
-              onDestinationSelected: (int index) {
-                setState(() {
-                  currentPage = index;
-                });
-              },
-              selectedIndex: currentPage,
-            ),
-          )
-        : const SignIn();
+    return Scaffold(
+      body: pages[currentPage],
+      bottomNavigationBar: NavigationBar(
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.gamepad), label: 'Controller'),
+          NavigationDestination(
+              icon: Icon(Icons.data_exploration), label: 'Data'),
+          NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+        ],
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPage = index;
+          });
+        },
+        selectedIndex: currentPage,
+      ),
+    );
   }
 }
