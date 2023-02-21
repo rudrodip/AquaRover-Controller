@@ -26,6 +26,9 @@ class _DataState extends State<Data> {
   final tempBuffer = CircularBuffer();
   final humidBuffer = CircularBuffer();
   final tdsBuffer = CircularBuffer();
+  final turbidityBuffer = CircularBuffer();
+  final dynamic snapshot = {};
+
   Timer? _timer;
 
   @override
@@ -44,6 +47,18 @@ class _DataState extends State<Data> {
     super.dispose();
   }
 
+  void setSnapShot() {
+    snapshot["temperature"] = tempBuffer.last().variable;
+    snapshot["humidity"] = humidBuffer.last().variable;
+    snapshot["tds"] = tdsBuffer.last().variable;
+    snapshot["turbidity"] = turbidityBuffer.last().variable;
+    snapshot["timestamp"] = DateTime.now();
+
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   Future<void> readCharacteristic() async {
     final result = await widget.readCharacteristic(widget.characteristic);
     String stringResult = String.fromCharCodes(result);
@@ -54,8 +69,16 @@ class _DataState extends State<Data> {
     String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
 
     if (!hasNullValues) {
-      tempBuffer.addDataPoint(currentTime, jsonData['temperature'].toDouble());
-      humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble());
+      jsonData.contains('temperature') ??
+          tempBuffer.addDataPoint(
+              currentTime, jsonData['temperature'].toDouble());
+      jsonData.contains('humidity') ??
+          humidBuffer.addDataPoint(
+              currentTime, jsonData['humidity'].toDouble());
+      jsonData.contains('tds') ??
+          tdsBuffer.addDataPoint(currentTime, jsonData['tds'].toDouble());
+      jsonData.contains('turbidity') ??
+          tdsBuffer.addDataPoint(currentTime, jsonData['turbidity'].toDouble());
       if (mounted) {
         setState(() {});
       }
@@ -82,8 +105,20 @@ class _DataState extends State<Data> {
                     content: SingleChildScrollView(
                       child: Column(
                         children: [
+                          if (snapshot.length > 1)
+                            Column(
+                              children: [
+                                const Text('Snapshot'),
+                                Text(snapshot.temperature),
+                                Text(snapshot.humidity),
+                                Text(snapshot.tds),
+                                Text(snapshot.turbidity),
+                                Text(snapshot.timestamp),
+                              ],
+                            ),
                           ElevatedButton(
-                              onPressed: () {}, child: const Text('Snapshot'))
+                              onPressed: setSnapShot,
+                              child: const Text('Snapshot')),
                         ],
                       ),
                     ),
@@ -158,6 +193,64 @@ class _DataState extends State<Data> {
                     yValueMapper: (DataPoint humidData, _) =>
                         humidData.variable,
                     name: 'Humidity',
+                    dataLabelSettings: const DataLabelSettings(isVisible: true),
+                  ),
+                ]),
+            SfCartesianChart(
+                primaryXAxis: CategoryAxis(),
+                // Chart title
+                title: ChartTitle(text: 'TDS (relative %)'),
+                // Enable legend
+                legend: Legend(isVisible: false),
+                // Enable tooltip
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                ),
+                zoomPanBehavior: ZoomPanBehavior(
+                  enablePinching: true,
+                ),
+                crosshairBehavior: CrosshairBehavior(
+                  enable: true,
+                  activationMode: ActivationMode.longPress,
+                  hideDelay: 500,
+                  lineColor: Colors.red,
+                ),
+                series: <ChartSeries<DataPoint, String>>[
+                  LineSeries<DataPoint, String>(
+                    dataSource: tdsBuffer.getBuffer(),
+                    xValueMapper: (DataPoint tdsData, _) => tdsData.time,
+                    yValueMapper: (DataPoint tdsData, _) => tdsData.variable,
+                    name: 'TDS',
+                    dataLabelSettings: const DataLabelSettings(isVisible: true),
+                  ),
+                ]),
+            SfCartesianChart(
+                primaryXAxis: CategoryAxis(),
+                // Chart title
+                title: ChartTitle(text: 'Turbidity (relative %)'),
+                // Enable legend
+                legend: Legend(isVisible: false),
+                // Enable tooltip
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                ),
+                zoomPanBehavior: ZoomPanBehavior(
+                  enablePinching: true,
+                ),
+                crosshairBehavior: CrosshairBehavior(
+                  enable: true,
+                  activationMode: ActivationMode.longPress,
+                  hideDelay: 500,
+                  lineColor: Colors.red,
+                ),
+                series: <ChartSeries<DataPoint, String>>[
+                  LineSeries<DataPoint, String>(
+                    dataSource: turbidityBuffer.getBuffer(),
+                    xValueMapper: (DataPoint turbidityData, _) =>
+                        turbidityData.time,
+                    yValueMapper: (DataPoint turbidityData, _) =>
+                        turbidityData.variable,
+                    name: 'Turbidity',
                     dataLabelSettings: const DataLabelSettings(isVisible: true),
                   ),
                 ]),

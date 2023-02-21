@@ -22,4 +22,13 @@ class CircularBuffer {
           _buffer.sublist(_head)..addAll(_buffer.sublist(0, _head)));
     }
   }
+
+  DataPoint last() {
+    // Return the last data point in the buffer
+    int tail = _head - 1;
+    if (tail < 0) {
+      tail = bufferSize - 1;
+    }
+    return _buffer[tail];
+  }
 }
