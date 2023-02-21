@@ -53,16 +53,19 @@ class _DataState extends State<Data> {
     final dynamic jsonData = json.decode(stringResult);
 
     String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
-    jsonData.containsKey('temperature') ??
-        tempBuffer.addDataPoint(
-            currentTime, jsonData['temperature'].toDouble());
-    jsonData.containsKey('humidity') ??
-        humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble());
+    jsonData.containsKey('temperature')
+        ? tempBuffer.addDataPoint(
+            currentTime, jsonData['temperature'].toDouble())
+        : '';
+    jsonData.containsKey('humidity')
+        ? humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble())
+        : '';
     jsonData.containsKey('tds')
         ? tdsBuffer.addDataPoint(currentTime, jsonData['tds'].toDouble())
         : '';
-    jsonData.containsKey('turbidity') ??
-        tdsBuffer.addDataPoint(currentTime, jsonData['turbidity'].toDouble());
+    jsonData.containsKey('turbidity')
+        ? tdsBuffer.addDataPoint(currentTime, jsonData['turbidity'].toDouble())
+        : '';
     if (mounted) {
       setState(() {});
     }
@@ -104,7 +107,7 @@ class _DataState extends State<Data> {
                           turbidityBuffer.last().variable != 0
                               ? Text(
                                   'Relative Turbidity: ${tempBuffer.last().variable}%')
-                              : const Text('Turbidity not connected'),
+                              : const Text('Turbidity sensor not connected'),
                           const SizedBox(
                             height: 10,
                           ),
@@ -151,6 +154,9 @@ class _DataState extends State<Data> {
             tempBuffer.last().variable != 0
                 ? Text('Temperature: ${tempBuffer.last().variable} C')
                 : const Text('Temperature sensor not connected'),
+            const SizedBox(
+              height: 32,
+            ),
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
@@ -175,6 +181,9 @@ class _DataState extends State<Data> {
             humidBuffer.last().variable != 0
                 ? Text('Relative Humidity: ${humidBuffer.last().variable} %')
                 : const Text('Humidity sensor not connected'),
+            const SizedBox(
+              height: 32,
+            ),
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
@@ -196,8 +205,11 @@ class _DataState extends State<Data> {
                   ),
                 ]),
             tdsBuffer.last().variable != 0
-                ? Text('Relative TDS: ${tempBuffer.last().variable}%')
+                ? Text('Relative TDS: ${tdsBuffer.last().variable}%')
                 : const Text('TDS sensor not connected'),
+            const SizedBox(
+              height: 32,
+            ),
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
@@ -222,7 +234,10 @@ class _DataState extends State<Data> {
                 ]),
             turbidityBuffer.last().variable != 0
                 ? Text('Relative Turbidity: ${tempBuffer.last().variable}%')
-                : const Text('Turbidity not connected'),
+                : const Text('Turbidity sensor not connected'),
+            const SizedBox(
+              height: 32,
+            ),
           ]),
         ));
   }

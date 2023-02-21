@@ -44,16 +44,13 @@ class ControllerScreen extends StatefulWidget {
 }
 
 class _ControllerScreenState extends State<ControllerScreen> {
-  double _currentSliderValue = 0;
   late TextEditingController textEditingController;
-  late String readOutput;
-  double prev_dis = 0;
-  double prev_deg = 0;
+  double prevDis = 0;
+  double prevDeg = 0;
 
   @override
   void initState() {
     textEditingController = TextEditingController();
-    readOutput = '';
 
     super.initState();
   }
@@ -64,12 +61,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
       String output = 'd$distance,$degrees';
       final List<int> outputList = convertToBytes(output);
 
-      if ((distance - prev_dis).abs() > 0.50 ||
-          (degrees - prev_deg).abs() > 60) {
+      if ((distance - prevDis).abs() > 0.50 || (degrees - prevDeg).abs() > 60) {
         writeCharacteristicWithResponse(outputList);
-        prev_dis = distance;
-        prev_deg = degrees;
-        debugPrint(distance.toString());
+        prevDis = distance;
+        prevDeg = degrees;
       }
     };
   }
@@ -80,14 +75,6 @@ class _ControllerScreenState extends State<ControllerScreen> {
 
   Future<void> writeCharacteristicWithoutResponse(input) async {
     await widget.writeWithoutResponse(widget.characteristic, input);
-  }
-
-  Future<void> readCharacteristic() async {
-    final result = await widget.readCharacteristic(widget.characteristic);
-    String stringResult = String.fromCharCodes(result);
-    setState(() {
-      readOutput = stringResult;
-    });
   }
 
   List<Widget> get writeSection => [
