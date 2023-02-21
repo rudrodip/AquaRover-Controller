@@ -80,12 +80,59 @@ class _ControllerScreenState extends State<ControllerScreen> {
     });
   }
 
+  List<Widget> get writeSection => [
+        TextField(
+          controller: textEditingController,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            labelText: 'Value',
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            ElevatedButton(
+              onPressed: () => writeCharacteristicWithoutResponse(
+                  convertToBytes(textEditingController.text)),
+              child: const Text('Send'),
+            ),
+          ],
+        ),
+      ];
+
   @override
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(
         title: const Text('AquaRover Controller'),
         automaticallyImplyLeading: false,
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showDialog(
+            context: context,
+            builder: (context) {
+              return ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxHeight: 500,
+                ),
+                child: AlertDialog(
+                  title: const Text('Debugger'),
+                  content: SingleChildScrollView(
+                    child: Column(
+                      children: [...writeSection],
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close'),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        child: const Icon(Icons.settings_applications),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,

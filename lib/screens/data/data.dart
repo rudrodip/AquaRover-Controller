@@ -4,6 +4,8 @@ import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:aquarover/models/datapoint.dart';
+import 'package:aquarover/models/circular_buffer.dart';
 
 class Data extends StatefulWidget {
   const Data({
@@ -23,6 +25,7 @@ class Data extends StatefulWidget {
 class _DataState extends State<Data> {
   final tempBuffer = CircularBuffer();
   final humidBuffer = CircularBuffer();
+  final tdsBuffer = CircularBuffer();
   Timer? _timer;
 
   @override
@@ -46,12 +49,16 @@ class _DataState extends State<Data> {
     String stringResult = String.fromCharCodes(result);
 
     final dynamic jsonData = json.decode(stringResult);
+    bool hasNullValues = jsonData.values.any((value) => value == null);
+
     String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
 
-    tempBuffer.addDataPoint(currentTime, jsonData['temperature'].toDouble());
-    humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble());
-    if (mounted) {
-      setState(() {});
+    if (!hasNullValues) {
+      tempBuffer.addDataPoint(currentTime, jsonData['temperature'].toDouble());
+      humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble());
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -62,6 +69,36 @@ class _DataState extends State<Data> {
           title: const Text('Data Visualization'),
           automaticallyImplyLeading: false,
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => showDialog(
+              context: context,
+              builder: (context) {
+                return ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 500,
+                  ),
+                  child: AlertDialog(
+                    title: const Text('Data Transmission'),
+                    content: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {}, child: const Text('Snapshot'))
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Close'),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+          child: const Icon(Icons.settings_applications),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: SingleChildScrollView(
           child: Column(children: [
             //Initialize the chart widget
@@ -121,48 +158,10 @@ class _DataState extends State<Data> {
                     yValueMapper: (DataPoint humidData, _) =>
                         humidData.variable,
                     name: 'Humidity',
-                    // Enable data label
-                    // Enable data label
                     dataLabelSettings: const DataLabelSettings(isVisible: true),
-                    // Enable data point marker
-                    markerSettings: const MarkerSettings(
-                      isVisible: true,
-                      shape: DataMarkerType.circle,
-                    ),
                   ),
                 ]),
           ]),
         ));
-  }
-}
-
-class DataPoint {
-  DataPoint(this.time, this.variable);
-
-  final String time;
-  final num variable;
-}
-
-class CircularBuffer {
-  final int bufferSize = 200;
-  final List<DataPoint> _buffer = List.filled(200, DataPoint('0', 0));
-  int _head = 0;
-
-  void addDataPoint(String x, double y) {
-    // Update the value at the current position
-    _buffer[_head] = DataPoint(x, y);
-
-    // Increment the pointer and wrap around if it exceeds the buffer size
-    _head = (_head + 1) % bufferSize;
-  }
-
-  List<DataPoint> getBuffer() {
-    // Return the data points in the order they were added to the buffer
-    if (_head == 0) {
-      return _buffer;
-    } else {
-      return List<DataPoint>.from(
-          _buffer.sublist(_head)..addAll(_buffer.sublist(0, _head)));
-    }
   }
 }
