@@ -31,4 +31,12 @@ class DatabaseService {
       return null;
     }
   }
+
+  Future<void> uploadReading(Map<String, dynamic> data) async {
+    return await userCollection
+        .doc(uid)
+        .set(data, SetOptions(merge: true))
+        .then((value) => debugPrint("Updated Reading"))
+        .catchError((error) => debugPrint("Failed to add reading: $error"));
+  }
 }

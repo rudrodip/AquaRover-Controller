@@ -27,7 +27,6 @@ class _DataState extends State<Data> {
   final humidBuffer = CircularBuffer();
   final tdsBuffer = CircularBuffer();
   final turbidityBuffer = CircularBuffer();
-  final dynamic snapshot = {};
 
   Timer? _timer;
 
@@ -47,41 +46,25 @@ class _DataState extends State<Data> {
     super.dispose();
   }
 
-  void setSnapShot() {
-    snapshot["temperature"] = tempBuffer.last().variable;
-    snapshot["humidity"] = humidBuffer.last().variable;
-    snapshot["tds"] = tdsBuffer.last().variable;
-    snapshot["turbidity"] = turbidityBuffer.last().variable;
-    snapshot["timestamp"] = DateTime.now();
-
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
   Future<void> readCharacteristic() async {
     final result = await widget.readCharacteristic(widget.characteristic);
     String stringResult = String.fromCharCodes(result);
 
     final dynamic jsonData = json.decode(stringResult);
-    bool hasNullValues = jsonData.values.any((value) => value == null);
 
     String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
-
-    if (!hasNullValues) {
-      jsonData.contains('temperature') ??
-          tempBuffer.addDataPoint(
-              currentTime, jsonData['temperature'].toDouble());
-      jsonData.contains('humidity') ??
-          humidBuffer.addDataPoint(
-              currentTime, jsonData['humidity'].toDouble());
-      jsonData.contains('tds') ??
-          tdsBuffer.addDataPoint(currentTime, jsonData['tds'].toDouble());
-      jsonData.contains('turbidity') ??
-          tdsBuffer.addDataPoint(currentTime, jsonData['turbidity'].toDouble());
-      if (mounted) {
-        setState(() {});
-      }
+    jsonData.containsKey('temperature') ??
+        tempBuffer.addDataPoint(
+            currentTime, jsonData['temperature'].toDouble());
+    jsonData.containsKey('humidity') ??
+        humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble());
+    jsonData.containsKey('tds')
+        ? tdsBuffer.addDataPoint(currentTime, jsonData['tds'].toDouble())
+        : '';
+    jsonData.containsKey('turbidity') ??
+        tdsBuffer.addDataPoint(currentTime, jsonData['turbidity'].toDouble());
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -101,24 +84,32 @@ class _DataState extends State<Data> {
                     maxHeight: 500,
                   ),
                   child: AlertDialog(
-                    title: const Text('Data Transmission'),
+                    title: const Text('Instant Reading'),
                     content: SingleChildScrollView(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (snapshot.length > 1)
-                            Column(
-                              children: [
-                                const Text('Snapshot'),
-                                Text(snapshot.temperature),
-                                Text(snapshot.humidity),
-                                Text(snapshot.tds),
-                                Text(snapshot.turbidity),
-                                Text(snapshot.timestamp),
-                              ],
-                            ),
+                          tempBuffer.last().variable != 0
+                              ? Text(
+                                  'Temperature: ${tempBuffer.last().variable} C')
+                              : const Text('Temperature sensor not connected'),
+                          humidBuffer.last().variable != 0
+                              ? Text(
+                                  'Relative Humidity: ${humidBuffer.last().variable} %')
+                              : const Text('Humidity sensor not connected'),
+                          tdsBuffer.last().variable != 0
+                              ? Text(
+                                  'Relative TDS: ${tempBuffer.last().variable}%')
+                              : const Text('TDS sensor not connected'),
+                          turbidityBuffer.last().variable != 0
+                              ? Text(
+                                  'Relative Turbidity: ${tempBuffer.last().variable}%')
+                              : const Text('Turbidity not connected'),
+                          const SizedBox(
+                            height: 10,
+                          ),
                           ElevatedButton(
-                              onPressed: setSnapShot,
-                              child: const Text('Snapshot')),
+                              onPressed: () {}, child: const Text('Snapshot')),
                         ],
                       ),
                     ),
@@ -131,7 +122,7 @@ class _DataState extends State<Data> {
                   ),
                 );
               }),
-          child: const Icon(Icons.settings_applications),
+          child: const Icon(Icons.settings_backup_restore),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: SingleChildScrollView(
@@ -147,26 +138,19 @@ class _DataState extends State<Data> {
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
                 ),
-                zoomPanBehavior: ZoomPanBehavior(
-                  enablePinching: true,
-                ),
-                crosshairBehavior: CrosshairBehavior(
-                  enable: true,
-                  activationMode: ActivationMode.longPress,
-                  hideDelay: 500,
-                  lineColor: Colors.red,
-                ),
+                zoomPanBehavior: null,
+                crosshairBehavior: null,
                 series: <ChartSeries<DataPoint, String>>[
                   LineSeries<DataPoint, String>(
-                      dataSource: tempBuffer.getBuffer(),
-                      xValueMapper: (DataPoint tempData, _) => tempData.time,
-                      yValueMapper: (DataPoint tempData, _) =>
-                          tempData.variable,
-                      name: 'Temperature',
-                      // Enable data label
-                      dataLabelSettings:
-                          const DataLabelSettings(isVisible: true))
+                    dataSource: tempBuffer.getBuffer(),
+                    xValueMapper: (DataPoint tempData, _) => tempData.time,
+                    yValueMapper: (DataPoint tempData, _) => tempData.variable,
+                    name: 'Temperature',
+                  )
                 ]),
+            tempBuffer.last().variable != 0
+                ? Text('Temperature: ${tempBuffer.last().variable} C')
+                : const Text('Temperature sensor not connected'),
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
@@ -177,15 +161,8 @@ class _DataState extends State<Data> {
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
                 ),
-                zoomPanBehavior: ZoomPanBehavior(
-                  enablePinching: true,
-                ),
-                crosshairBehavior: CrosshairBehavior(
-                  enable: true,
-                  activationMode: ActivationMode.longPress,
-                  hideDelay: 500,
-                  lineColor: Colors.red,
-                ),
+                zoomPanBehavior: null,
+                crosshairBehavior: null,
                 series: <ChartSeries<DataPoint, String>>[
                   LineSeries<DataPoint, String>(
                     dataSource: humidBuffer.getBuffer(),
@@ -193,9 +170,11 @@ class _DataState extends State<Data> {
                     yValueMapper: (DataPoint humidData, _) =>
                         humidData.variable,
                     name: 'Humidity',
-                    dataLabelSettings: const DataLabelSettings(isVisible: true),
                   ),
                 ]),
+            humidBuffer.last().variable != 0
+                ? Text('Relative Humidity: ${humidBuffer.last().variable} %')
+                : const Text('Humidity sensor not connected'),
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
@@ -206,24 +185,19 @@ class _DataState extends State<Data> {
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
                 ),
-                zoomPanBehavior: ZoomPanBehavior(
-                  enablePinching: true,
-                ),
-                crosshairBehavior: CrosshairBehavior(
-                  enable: true,
-                  activationMode: ActivationMode.longPress,
-                  hideDelay: 500,
-                  lineColor: Colors.red,
-                ),
+                zoomPanBehavior: null,
+                crosshairBehavior: null,
                 series: <ChartSeries<DataPoint, String>>[
                   LineSeries<DataPoint, String>(
                     dataSource: tdsBuffer.getBuffer(),
                     xValueMapper: (DataPoint tdsData, _) => tdsData.time,
                     yValueMapper: (DataPoint tdsData, _) => tdsData.variable,
                     name: 'TDS',
-                    dataLabelSettings: const DataLabelSettings(isVisible: true),
                   ),
                 ]),
+            tdsBuffer.last().variable != 0
+                ? Text('Relative TDS: ${tempBuffer.last().variable}%')
+                : const Text('TDS sensor not connected'),
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
@@ -234,15 +208,8 @@ class _DataState extends State<Data> {
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
                 ),
-                zoomPanBehavior: ZoomPanBehavior(
-                  enablePinching: true,
-                ),
-                crosshairBehavior: CrosshairBehavior(
-                  enable: true,
-                  activationMode: ActivationMode.longPress,
-                  hideDelay: 500,
-                  lineColor: Colors.red,
-                ),
+                zoomPanBehavior: null,
+                crosshairBehavior: null,
                 series: <ChartSeries<DataPoint, String>>[
                   LineSeries<DataPoint, String>(
                     dataSource: turbidityBuffer.getBuffer(),
@@ -251,9 +218,11 @@ class _DataState extends State<Data> {
                     yValueMapper: (DataPoint turbidityData, _) =>
                         turbidityData.variable,
                     name: 'Turbidity',
-                    dataLabelSettings: const DataLabelSettings(isVisible: true),
                   ),
                 ]),
+            turbidityBuffer.last().variable != 0
+                ? Text('Relative Turbidity: ${tempBuffer.last().variable}%')
+                : const Text('Turbidity not connected'),
           ]),
         ));
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:control_pad/control_pad.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'dart:async';
+import 'slider.dart';
 
 List<int> convertToBytes(dynamic input) {
   String stringVal = input.toString();
@@ -12,15 +13,6 @@ List<int> convertToBytes(dynamic input) {
   }
 
   return bytes;
-}
-
-JoystickDirectionCallback onDirectionChanged(
-    Future<void> Function(dynamic) writeCharacteristicWithResponse) {
-  return (double degrees, double distance) {
-    String output = 'd$distance,$degrees';
-    final List<int> outputList = convertToBytes(output);
-    writeCharacteristicWithResponse(outputList);
-  };
 }
 
 class ControllerScreen extends StatefulWidget {
@@ -55,6 +47,8 @@ class _ControllerScreenState extends State<ControllerScreen> {
   double _currentSliderValue = 0;
   late TextEditingController textEditingController;
   late String readOutput;
+  double prev_dis = 0;
+  double prev_deg = 0;
 
   @override
   void initState() {
@@ -62,6 +56,22 @@ class _ControllerScreenState extends State<ControllerScreen> {
     readOutput = '';
 
     super.initState();
+  }
+
+  JoystickDirectionCallback onDirectionChanged(
+      Future<void> Function(dynamic) writeCharacteristicWithResponse) {
+    return (double degrees, double distance) {
+      String output = 'd$distance,$degrees';
+      final List<int> outputList = convertToBytes(output);
+
+      if ((distance - prev_dis).abs() > 0.50 ||
+          (degrees - prev_deg).abs() > 60) {
+        writeCharacteristicWithResponse(outputList);
+        prev_dis = distance;
+        prev_deg = degrees;
+        debugPrint(distance.toString());
+      }
+    };
   }
 
   Future<void> writeCharacteristicWithResponse(input) async {
@@ -142,20 +152,29 @@ class _ControllerScreenState extends State<ControllerScreen> {
               onDirectionChanged:
                   onDirectionChanged(writeCharacteristicWithResponse),
             ),
-            Slider(
-              value: _currentSliderValue,
-              max: 100,
-              divisions: 10,
-              label: _currentSliderValue.round().toString(),
-              onChangeEnd: (double value) {
-                writeCharacteristicWithResponse(convertToBytes(value));
-              },
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              },
+            const SizedBox(
+              height: 32,
             ),
+            CustomSlider(
+                name: 'Slider 1',
+                id: 's1',
+                write: writeCharacteristicWithResponse,
+                convert: convertToBytes),
+            CustomSlider(
+                name: 'Slider 2',
+                id: 's2',
+                write: writeCharacteristicWithResponse,
+                convert: convertToBytes),
+            CustomSlider(
+                name: 'Slider 3',
+                id: 's3',
+                write: writeCharacteristicWithResponse,
+                convert: convertToBytes),
+            CustomSlider(
+                name: 'Slider 4',
+                id: 's4',
+                write: writeCharacteristicWithResponse,
+                convert: convertToBytes),
           ],
         ),
       ));
