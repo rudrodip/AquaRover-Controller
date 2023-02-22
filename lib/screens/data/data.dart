@@ -64,7 +64,8 @@ class _DataState extends State<Data> {
         ? tdsBuffer.addDataPoint(currentTime, jsonData['tds'].toDouble())
         : '';
     jsonData.containsKey('turbidity')
-        ? tdsBuffer.addDataPoint(currentTime, jsonData['turbidity'].toDouble())
+        ? turbidityBuffer.addDataPoint(
+            currentTime, jsonData['turbidity'].toDouble())
         : '';
     if (mounted) {
       setState(() {});
@@ -130,6 +131,17 @@ class _DataState extends State<Data> {
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: SingleChildScrollView(
           child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.all(15),
+              child: Text(
+                'Realtime data from AquaRover',
+                style: TextStyle(
+                  color: Colors.cyan[400],
+                  fontSize: 25,
+                ),
+              ),
+            ),
+
             //Initialize the chart widget
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
@@ -233,7 +245,8 @@ class _DataState extends State<Data> {
                   ),
                 ]),
             turbidityBuffer.last().variable != 0
-                ? Text('Relative Turbidity: ${tempBuffer.last().variable}%')
+                ? Text(
+                    'Relative Turbidity: ${turbidityBuffer.last().variable}%')
                 : const Text('Turbidity sensor not connected'),
             const SizedBox(
               height: 32,

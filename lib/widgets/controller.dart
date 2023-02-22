@@ -58,7 +58,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   JoystickDirectionCallback onDirectionChanged(
       Future<void> Function(dynamic) writeCharacteristicWithResponse) {
     return (double degrees, double distance) {
-      String output = 'd$distance,$degrees';
+      String output = 'd$distance,${90 - degrees}';
       final List<int> outputList = convertToBytes(output);
 
       if ((distance - prevDis).abs() > 0.50 || (degrees - prevDeg).abs() > 60) {
