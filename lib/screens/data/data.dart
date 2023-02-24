@@ -24,9 +24,11 @@ class Data extends StatefulWidget {
 
 class _DataState extends State<Data> {
   final tempBuffer = CircularBuffer();
+  final envTempBuffer = CircularBuffer();
   final humidBuffer = CircularBuffer();
   final tdsBuffer = CircularBuffer();
   final turbidityBuffer = CircularBuffer();
+  String readOutput = '';
 
   Timer? _timer;
 
@@ -49,6 +51,9 @@ class _DataState extends State<Data> {
   Future<void> readCharacteristic() async {
     final result = await widget.readCharacteristic(widget.characteristic);
     String stringResult = String.fromCharCodes(result);
+    setState(() {
+      readOutput = result.toString();
+    });
 
     final dynamic jsonData = json.decode(stringResult);
 
@@ -67,10 +72,22 @@ class _DataState extends State<Data> {
         ? turbidityBuffer.addDataPoint(
             currentTime, jsonData['turbidity'].toDouble())
         : '';
+    jsonData.containsKey('env_temperature')
+        ? turbidityBuffer.addDataPoint(
+            currentTime, jsonData['env_temperature'].toDouble())
+        : '';
+
     if (mounted) {
-      setState(() {});
+      setState(() {
+        readOutput = stringResult;
+      });
     }
   }
+
+  Widget sectionHeader(String text) => Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -88,11 +105,15 @@ class _DataState extends State<Data> {
                     maxHeight: 500,
                   ),
                   child: AlertDialog(
-                    title: const Text('Instant Reading'),
+                    title: const Text(
+                      'Instant Reading',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     content: SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Text('Received: $readOutput'),
                           tempBuffer.last().variable != 0
                               ? Text(
                                   'Temperature: ${tempBuffer.last().variable} C')
@@ -146,15 +167,20 @@ class _DataState extends State<Data> {
             SfCartesianChart(
                 primaryXAxis: CategoryAxis(),
                 // Chart title
-                title: ChartTitle(text: 'Temperature (deg C)'),
+                title: ChartTitle(text: 'Water Temperature (deg C)'),
                 // Enable legend
                 legend: Legend(isVisible: false),
                 // Enable tooltip
                 tooltipBehavior: TooltipBehavior(
                   enable: true,
                 ),
-                zoomPanBehavior: null,
-                crosshairBehavior: null,
+                zoomPanBehavior: ZoomPanBehavior(
+                  enablePinching: true,
+                ),
+                crosshairBehavior: CrosshairBehavior(
+                  activationMode: ActivationMode.longPress,
+                  enable: true,
+                ),
                 series: <ChartSeries<DataPoint, String>>[
                   LineSeries<DataPoint, String>(
                     dataSource: tempBuffer.getBuffer(),
@@ -166,6 +192,38 @@ class _DataState extends State<Data> {
             tempBuffer.last().variable != 0
                 ? Text('Temperature: ${tempBuffer.last().variable} C')
                 : const Text('Temperature sensor not connected'),
+            const SizedBox(
+              height: 32,
+            ),
+            SfCartesianChart(
+                primaryXAxis: CategoryAxis(),
+                // Chart title
+                title: ChartTitle(text: 'Environment Temperature (deg C)'),
+                // Enable legend
+                legend: Legend(isVisible: false),
+                // Enable tooltip
+                tooltipBehavior: TooltipBehavior(
+                  enable: true,
+                ),
+                zoomPanBehavior: ZoomPanBehavior(
+                  enablePinching: true,
+                ),
+                crosshairBehavior: CrosshairBehavior(
+                  activationMode: ActivationMode.longPress,
+                  enable: true,
+                ),
+                series: <ChartSeries<DataPoint, String>>[
+                  LineSeries<DataPoint, String>(
+                    dataSource: envTempBuffer.getBuffer(),
+                    xValueMapper: (DataPoint tempData, _) => tempData.time,
+                    yValueMapper: (DataPoint tempData, _) => tempData.variable,
+                    name: 'Temperature',
+                  )
+                ]),
+            tempBuffer.last().variable != 0
+                ? Text(
+                    'Environment Temperature: ${envTempBuffer.last().variable} C')
+                : const Text('Environment Temperature sensor not connected'),
             const SizedBox(
               height: 32,
             ),
