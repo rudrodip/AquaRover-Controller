@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:aquarover/models/datapoint.dart';
 import 'package:aquarover/models/circular_buffer.dart';
+import 'package:aquarover/functions/parse_json.dart';
 
 class Data extends StatefulWidget {
   const Data({
@@ -55,26 +56,27 @@ class _DataState extends State<Data> {
       readOutput = result.toString();
     });
 
-    final dynamic jsonData = json.decode(stringResult);
+    final Map<String, double> jsonData = parseJson(stringResult);
 
     String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
     jsonData.containsKey('temperature')
         ? tempBuffer.addDataPoint(
-            currentTime, jsonData['temperature'].toDouble())
+            currentTime, jsonData['temperature']!.toDouble())
         : '';
     jsonData.containsKey('humidity')
-        ? humidBuffer.addDataPoint(currentTime, jsonData['humidity'].toDouble())
+        ? humidBuffer.addDataPoint(
+            currentTime, jsonData['humidity']!.toDouble())
         : '';
     jsonData.containsKey('tds')
-        ? tdsBuffer.addDataPoint(currentTime, jsonData['tds'].toDouble())
+        ? tdsBuffer.addDataPoint(currentTime, jsonData['tds']!.toDouble())
         : '';
     jsonData.containsKey('turbidity')
         ? turbidityBuffer.addDataPoint(
-            currentTime, jsonData['turbidity'].toDouble())
+            currentTime, jsonData['turbidity']!.toDouble())
         : '';
     jsonData.containsKey('env_temperature')
         ? turbidityBuffer.addDataPoint(
-            currentTime, jsonData['env_temperature'].toDouble())
+            currentTime, jsonData['env_temperature']!.toDouble())
         : '';
 
     if (mounted) {
