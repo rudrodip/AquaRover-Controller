@@ -1,8 +1,8 @@
 import 'datapoint.dart';
 
 class CircularBuffer {
-  final int bufferSize = 200;
-  final List<DataPoint> _buffer = List.filled(200, DataPoint('0', 0));
+  final int bufferSize = 100;
+  final List<DataPoint> _buffer = List.filled(100, DataPoint('0', 0));
   int _head = 0;
 
   void addDataPoint(String x, double y) {
@@ -30,5 +30,11 @@ class CircularBuffer {
       tail = bufferSize - 1;
     }
     return _buffer[tail];
+  }
+
+  void increaseVarPoints(double x) {
+    for (int i = 0; i < bufferSize; i++) {
+      _buffer[i].variable += x;
+    }
   }
 }

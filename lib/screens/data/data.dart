@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:aquarover/models/datapoint.dart';
 import 'package:aquarover/models/circular_buffer.dart';
 import 'package:aquarover/functions/parse_json.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'calibration_dialog.dart';
 
 class Data extends StatefulWidget {
   const Data({
@@ -29,6 +30,13 @@ class _DataState extends State<Data> {
   final humidBuffer = CircularBuffer();
   final tdsBuffer = CircularBuffer();
   final turbidityBuffer = CircularBuffer();
+
+  double tempCalibConst = 0;
+  double envTempCalibConst = 0;
+  double humidCalibConst = 0;
+  double tdsCalibConst = 0;
+  double turbidityCalibConst = 0;
+
   String readOutput = '';
 
   Timer? _timer;
@@ -53,30 +61,33 @@ class _DataState extends State<Data> {
     final result = await widget.readCharacteristic(widget.characteristic);
     String stringResult = String.fromCharCodes(result);
     setState(() {
-      readOutput = result.toString();
+      readOutput = stringResult;
     });
 
     final Map<String, double> jsonData = parseJson(stringResult);
 
     String currentTime = DateFormat('hh:mm:ss').format(DateTime.now());
     jsonData.containsKey('temperature')
-        ? tempBuffer.addDataPoint(
-            currentTime, jsonData['temperature']!.toDouble())
+        ? tempBuffer.addDataPoint(currentTime,
+            jsonData['temperature']!.toDouble() + tempCalibConst.toDouble())
         : '';
     jsonData.containsKey('humidity')
-        ? humidBuffer.addDataPoint(
-            currentTime, jsonData['humidity']!.toDouble())
+        ? humidBuffer.addDataPoint(currentTime,
+            jsonData['humidity']!.toDouble() + humidCalibConst.toDouble())
         : '';
     jsonData.containsKey('tds')
-        ? tdsBuffer.addDataPoint(currentTime, jsonData['tds']!.toDouble())
+        ? tdsBuffer.addDataPoint(
+            currentTime, jsonData['tds']!.toDouble() + tdsCalibConst.toDouble())
         : '';
     jsonData.containsKey('turbidity')
-        ? turbidityBuffer.addDataPoint(
-            currentTime, jsonData['turbidity']!.toDouble())
+        ? turbidityBuffer.addDataPoint(currentTime,
+            jsonData['turbidity']!.toDouble() + turbidityCalibConst.toDouble())
         : '';
     jsonData.containsKey('env_temperature')
         ? turbidityBuffer.addDataPoint(
-            currentTime, jsonData['env_temperature']!.toDouble())
+            currentTime,
+            jsonData['env_temperature']!.toDouble() +
+                envTempCalibConst.toDouble())
         : '';
 
     if (mounted) {
@@ -84,6 +95,26 @@ class _DataState extends State<Data> {
         readOutput = stringResult;
       });
     }
+  }
+
+  void _updateTempCalibConst(double c) {
+    tempCalibConst = c;
+  }
+
+  void _updateHumidCalibConst(double c) {
+    humidCalibConst = c;
+  }
+
+  void _updateEnvTempCalibConst(double c) {
+    envTempCalibConst = c;
+  }
+
+  void _updateTDSCalibConst(double c) {
+    tdsCalibConst = c;
+  }
+
+  void _updateTurbidityCalibConst(double c) {
+    turbidityCalibConst = c;
   }
 
   Widget sectionHeader(String text) => Text(
@@ -98,58 +129,75 @@ class _DataState extends State<Data> {
           title: const Text('Data Visualization'),
           automaticallyImplyLeading: false,
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => showDialog(
-              context: context,
-              builder: (context) {
-                return ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxHeight: 500,
-                  ),
-                  child: AlertDialog(
-                    title: const Text(
-                      'Instant Reading',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    content: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Received: $readOutput'),
-                          tempBuffer.last().variable != 0
-                              ? Text(
-                                  'Temperature: ${tempBuffer.last().variable} C')
-                              : const Text('Temperature sensor not connected'),
-                          humidBuffer.last().variable != 0
-                              ? Text(
-                                  'Relative Humidity: ${humidBuffer.last().variable} %')
-                              : const Text('Humidity sensor not connected'),
-                          tdsBuffer.last().variable != 0
-                              ? Text(
-                                  'Relative TDS: ${tempBuffer.last().variable}%')
-                              : const Text('TDS sensor not connected'),
-                          turbidityBuffer.last().variable != 0
-                              ? Text(
-                                  'Relative Turbidity: ${tempBuffer.last().variable}%')
-                              : const Text('Turbidity sensor not connected'),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          ElevatedButton(
-                              onPressed: () {}, child: const Text('Snapshot')),
-                        ],
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Close'),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-          child: const Icon(Icons.settings_backup_restore),
+        floatingActionButton: SpeedDial(
+          children: [
+            SpeedDialChild(
+              child: const Icon(Icons.water_drop),
+              label: 'Water Temperature',
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CalibrationDialog(
+                      name: "Water Temperature",
+                      buffer: tempBuffer,
+                      updateCalibConst: _updateTempCalibConst,
+                    );
+                  }),
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.sunny),
+              label: 'Environment Temperature',
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CalibrationDialog(
+                      name: "Environment Temperature",
+                      buffer: envTempBuffer,
+                      updateCalibConst: _updateEnvTempCalibConst,
+                    );
+                  }),
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.foggy),
+              label: 'Environment Humidity',
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CalibrationDialog(
+                      name: "Environment Humidity",
+                      buffer: humidBuffer,
+                      updateCalibConst: _updateHumidCalibConst,
+                    );
+                  }),
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.shape_line),
+              label: 'TDS',
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CalibrationDialog(
+                      name: "TDS",
+                      buffer: tdsBuffer,
+                      updateCalibConst: _updateTDSCalibConst,
+                    );
+                  }),
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.shape_line_rounded),
+              label: 'Turbidity',
+              onTap: () => showDialog(
+                  context: context,
+                  builder: (context) {
+                    return CalibrationDialog(
+                      name: "Turbidity",
+                      buffer: turbidityBuffer,
+                      updateCalibConst: _updateTurbidityCalibConst,
+                    );
+                  }),
+            ),
+          ],
+          child: const Icon(Icons.compass_calibration),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: SingleChildScrollView(
@@ -311,6 +359,62 @@ class _DataState extends State<Data> {
             const SizedBox(
               height: 32,
             ),
+            ElevatedButton(
+                onPressed: () => showDialog(
+                    context: context,
+                    builder: (context) {
+                      return ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          maxHeight: 500,
+                        ),
+                        child: AlertDialog(
+                          title: const Text(
+                            'Instant Reading',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          content: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Received: $readOutput'),
+                                tempBuffer.last().variable != 0
+                                    ? Text(
+                                        'Temperature: ${tempBuffer.last().variable} C')
+                                    : const Text(
+                                        'Temperature sensor not connected'),
+                                humidBuffer.last().variable != 0
+                                    ? Text(
+                                        'Relative Humidity: ${humidBuffer.last().variable} %')
+                                    : const Text(
+                                        'Humidity sensor not connected'),
+                                tdsBuffer.last().variable != 0
+                                    ? Text(
+                                        'Relative TDS: ${tempBuffer.last().variable}%')
+                                    : const Text('TDS sensor not connected'),
+                                turbidityBuffer.last().variable != 0
+                                    ? Text(
+                                        'Relative Turbidity: ${tempBuffer.last().variable}%')
+                                    : const Text(
+                                        'Turbidity sensor not connected'),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                ElevatedButton(
+                                    onPressed: () {},
+                                    child: const Text('Snapshot')),
+                              ],
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Close'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                child: const Icon(Icons.drafts))
           ]),
         ));
   }

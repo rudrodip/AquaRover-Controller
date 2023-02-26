@@ -1,6 +1,6 @@
 class DataPoint {
-  DataPoint(this.time, this.variable);
+  String time;
+  double variable;
 
-  final String time;
-  final num variable;
+  DataPoint(this.time, this.variable);
 }
