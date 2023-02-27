@@ -48,6 +48,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   late TextEditingController textEditingController;
   double prevDis = 0;
   double prevDeg = 0;
+  bool pumpOn = false;
 
   @override
   void initState() {
@@ -57,7 +58,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
   }
 
   JoystickDirectionCallback onDirectionChanged(
-      Future<void> Function(dynamic) writeCharacteristicWithResponse) {
+      Future<void> Function(dynamic) writeCharacteristicWithoutResponse) {
     return (double degrees, double distance) {
       if (!(degrees >= 90 && degrees <= 270)) {
         distance = distance * -1;
@@ -70,7 +71,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
       final List<int> outputList = convertToBytes(output);
       debugPrint(output);
       if ((distance - prevDis).abs() > 0.50 || (degrees - prevDeg).abs() > 20) {
-        writeCharacteristicWithResponse(outputList);
+        writeCharacteristicWithoutResponse(outputList);
         prevDis = distance;
         prevDeg = degrees;
       }
@@ -147,7 +148,7 @@ class _ControllerScreenState extends State<ControllerScreen> {
               angle: math.pi,
               child: JoystickView(
                 onDirectionChanged:
-                    onDirectionChanged(writeCharacteristicWithResponse),
+                    onDirectionChanged(writeCharacteristicWithoutResponse),
               ),
             ),
             const SizedBox(
@@ -173,6 +174,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 id: 's4',
                 write: writeCharacteristicWithResponse,
                 convert: convertToBytes),
+            ElevatedButton(
+                onPressed: () =>
+                    writeCharacteristicWithResponse(pumpOn ? "p0" : "p1"),
+                child: Text(pumpOn ? "Pump off" : "Pump on"))
           ],
         ),
       ));
