@@ -102,7 +102,7 @@ class _ProfileState extends State<Profile> {
                     ),
                     const SizedBox(height: 16),
                     Text('Sample Collected: ${userInfo!['sampleCollected']}'),
-                    Text('Sample Collected: ${userInfo!['location']}'),
+                    Text('Location: ${userInfo!['location']}'),
                     logoutButton()
                   ],
                 ))

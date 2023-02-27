@@ -40,7 +40,12 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Email: contact@aquarover.com',
+              'Email: rcsc.3.22@gmail.com',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Website: aqua-rover.vercel.app',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ],

@@ -39,4 +39,21 @@ class DatabaseService {
         .then((value) => debugPrint("Updated Reading"))
         .catchError((error) => debugPrint("Failed to add reading: $error"));
   }
+
+  Future<void> addReading(Map<String, dynamic> newReading) async {
+    final CollectionReference users =
+        FirebaseFirestore.instance.collection('users');
+    final DocumentReference userDoc = users.doc(uid);
+
+    // Get the current "readings" map
+    DocumentSnapshot userSnapshot = await userDoc.get();
+    Map<String, dynamic> reading = userSnapshot.get('reading');
+
+    // Add the new reading to the "readings" map
+    String timestamp = newReading['timestamp'];
+    reading[timestamp] = newReading;
+
+    // Update the "readings" map in Firestore
+    await userDoc.update({'readings': reading});
+  }
 }

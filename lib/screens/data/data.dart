@@ -8,6 +8,10 @@ import 'package:aquarover/models/circular_buffer.dart';
 import 'package:aquarover/functions/parse_json.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'calibration_dialog.dart';
+import 'package:aquarover/services/database.dart';
+import 'package:aquarover/services/auth.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Data extends StatefulWidget {
   const Data({
@@ -124,6 +128,10 @@ class _DataState extends State<Data> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User?>(context);
+    String? uid = user?.uid;
+    final DatabaseService db = DatabaseService(uid: uid);
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Data Visualization'),
@@ -389,18 +397,33 @@ class _DataState extends State<Data> {
                                         'Humidity sensor not connected'),
                                 tdsBuffer.last().variable != 0
                                     ? Text(
-                                        'Relative TDS: ${tempBuffer.last().variable}%')
+                                        'Relative TDS: ${tdsBuffer.last().variable}%')
                                     : const Text('TDS sensor not connected'),
                                 turbidityBuffer.last().variable != 0
                                     ? Text(
-                                        'Relative Turbidity: ${tempBuffer.last().variable}%')
+                                        'Relative Turbidity: ${turbidityBuffer.last().variable}%')
                                     : const Text(
                                         'Turbidity sensor not connected'),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: () async {
+                                      Map<String, dynamic> data = {
+                                        "timestamp": DateFormat('hh:mm:ss')
+                                            .format(DateTime.now()),
+                                        "temperature":
+                                            tempBuffer.last().variable,
+                                        "humidity": humidBuffer.last().variable,
+                                        "env_temperature":
+                                            envTempBuffer.last().variable,
+                                        "tds": tdsBuffer.last().variable,
+                                        "turbidity":
+                                            turbidityBuffer.last().variable,
+                                      };
+
+                                      await db.addReading(data);
+                                    },
                                     child: const Text('Snapshot')),
                               ],
                             ),

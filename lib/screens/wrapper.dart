@@ -75,7 +75,6 @@ class _WrapperState extends State<Wrapper> {
         readCharacteristic: readCharacteristic,
       ),
       const Profile(),
-      const Settings(),
     ];
     super.initState();
   }
@@ -90,7 +89,6 @@ class _WrapperState extends State<Wrapper> {
           NavigationDestination(
               icon: Icon(Icons.data_exploration), label: 'Data'),
           NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         onDestinationSelected: (int index) {
           setState(() {

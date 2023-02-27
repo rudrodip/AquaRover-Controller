@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:aquarover/services/ble/ble_logger.dart';
 import 'package:aquarover/services/widgets.dart';
 import 'device_detail/device_detail_screen.dart';
-import 'package:aquarover/screens/data/data.dart';
 import 'package:aquarover/screens/profile/profile.dart';
+import 'package:aquarover/screens/about/about.dart';
 
 class DeviceListScreen extends StatelessWidget {
   const DeviceListScreen({Key? key}) : super(key: key);
@@ -125,6 +125,18 @@ class _DeviceListState extends State<_DeviceList> {
                 title: const Text('Home'),
                 onTap: () {
                   Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info),
+                title: const Text('About'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AboutScreen()),
+                  );
                 },
               ),
               ListTile(
