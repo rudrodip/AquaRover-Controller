@@ -42,7 +42,7 @@ class DatabaseService {
 
   Future<void> addReading(Map<String, dynamic> newReading) async {
     final CollectionReference users =
-        FirebaseFirestore.instance.collection('users');
+        FirebaseFirestore.instance.collection('user');
     final DocumentReference userDoc = users.doc(uid);
 
     // Get the current "readings" map

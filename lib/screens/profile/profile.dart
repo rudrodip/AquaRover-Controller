@@ -103,7 +103,7 @@ class _ProfileState extends State<Profile> {
                     const SizedBox(height: 16),
                     Text('Sample Collected: ${userInfo!['sampleCollected']}'),
                     Text('Location: ${userInfo!['location']}'),
-                    logoutButton()
+                    logoutButton(),
                   ],
                 ))
             : Center(child: loginButton())

@@ -9,7 +9,6 @@ import 'package:aquarover/functions/parse_json.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'calibration_dialog.dart';
 import 'package:aquarover/services/database.dart';
-import 'package:aquarover/services/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 

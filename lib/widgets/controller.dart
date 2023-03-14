@@ -46,15 +46,31 @@ class ControllerScreen extends StatefulWidget {
 
 class _ControllerScreenState extends State<ControllerScreen> {
   late TextEditingController textEditingController;
-  double prevDis = 0;
-  double prevDeg = 0;
+  // double prevDis = 0;
+  // double prevDeg = 0;
   bool pumpOn = false;
+  late Timer timer;
+  double degrees = 0.0;
+  double distance = 0.0;
 
   @override
   void initState() {
     textEditingController = TextEditingController();
 
+    // Start the timer
+    timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      writeCharacteristic();
+    });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // Cancel the timer
+    timer.cancel();
+
+    super.dispose();
   }
 
   JoystickDirectionCallback onDirectionChanged(
@@ -67,15 +83,18 @@ class _ControllerScreenState extends State<ControllerScreen> {
       if (degrees > 180) degrees = 360 - degrees;
       if (degrees < 0) degrees = degrees + 180;
 
-      String output = 'd$distance,$degrees';
-      final List<int> outputList = convertToBytes(output);
-      debugPrint(output);
-      if ((distance - prevDis).abs() > 0.50 || (degrees - prevDeg).abs() > 20) {
-        writeCharacteristicWithoutResponse(outputList);
-        prevDis = distance;
-        prevDeg = degrees;
-      }
+      setState(() {
+        this.distance = distance;
+        this.degrees = degrees;
+      });
     };
+  }
+
+  void writeCharacteristic() {
+    String output = 'd$distance,$degrees';
+    final List<int> outputList = convertToBytes(output);
+    debugPrint(output);
+    writeCharacteristicWithoutResponse(outputList);
   }
 
   Future<void> writeCharacteristicWithResponse(input) async {
@@ -175,8 +194,10 @@ class _ControllerScreenState extends State<ControllerScreen> {
                 write: writeCharacteristicWithResponse,
                 convert: convertToBytes),
             ElevatedButton(
-                onPressed: () =>
-                    writeCharacteristicWithResponse(pumpOn ? "p0" : "p1"),
+                onPressed: () {
+                  writeCharacteristicWithResponse(pumpOn ? "p0" : "p1");
+                  pumpOn = !pumpOn;
+                },
                 child: Text(pumpOn ? "Pump off" : "Pump on"))
           ],
         ),
